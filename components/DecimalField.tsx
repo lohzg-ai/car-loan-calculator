@@ -75,7 +75,7 @@ export function DecimalField({
 
   return (
     <div>
-      <label htmlFor={id} className="eyebrow block text-charcoal">
+      <label htmlFor={id} className="label block text-charcoal">
         {label}
       </label>
       <div

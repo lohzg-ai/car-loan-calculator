@@ -9,8 +9,8 @@ const OPTIONS = Array.from({ length: MAX_TENURE_YEARS - MIN_TENURE_YEARS + 1 }, 
 export function TenureField({ value, onChange }: { value: number; onChange: (years: number) => void }) {
   return (
     <div>
-      <label htmlFor="tenure" className="eyebrow block text-charcoal">
-        Loan tenure (years)
+      <label htmlFor="tenure" className="label block text-charcoal">
+        Loan tenure
       </label>
       <div className="relative mt-3">
         <select
@@ -37,7 +37,6 @@ export function TenureField({ value, onChange }: { value: number; onChange: (yea
           <path d="M3 6l5 5 5-5" />
         </svg>
       </div>
-      <div className="mt-2 min-h-5 text-sm leading-5 text-mid">Whole years from 1 to 10.</div>
     </div>
   );
 }

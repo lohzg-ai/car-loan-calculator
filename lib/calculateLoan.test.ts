@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { calculateLoan, roundToCents } from "./calculateLoan";
 import { formatSGD, groupThousands, sanitizeDecimal } from "./format";
+import { formatTenure } from "./summary";
 import { isValidTenure, parseAmount, validateAmount, validateRate } from "./validation";
 
 describe("calculateLoan", () => {
@@ -79,6 +80,12 @@ describe("input helpers", () => {
     expect(validateRate("2.685")).toMatch(/2 decimal/i);
     expect(validateRate("0")).toBeNull();
     expect(validateRate("2.68")).toBeNull();
+  });
+
+  it("formats tenure with months", () => {
+    expect(formatTenure(1)).toBe("1 year (12 months)");
+    expect(formatTenure(5)).toBe("5 years (60 months)");
+    expect(formatTenure(7)).toBe("7 years (84 months)");
   });
 
   it("validates tenure", () => {

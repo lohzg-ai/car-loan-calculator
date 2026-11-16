@@ -29,7 +29,7 @@ export function SnapshotCard({
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed top-0 -left-[10000px]">
-      <div ref={ref} className="w-[640px] bg-white p-12 font-sans text-charcoal">
+      <div ref={ref} className="theme-light w-[640px] bg-paper p-12 font-sans text-charcoal">
         <div className="flex items-center justify-between border-b border-ink pb-5">
           <span className="eyebrow tracking-[0.2em] text-ink">Car Loan Calculator</span>
           <span data-snapshot-date className="text-sm text-mid" />
@@ -38,7 +38,7 @@ export function SnapshotCard({
         <dl className="mt-8 grid grid-cols-3 gap-6">
           {rows.map(([label, value]) => (
             <div key={label}>
-              <dt className="eyebrow text-mid">{label}</dt>
+              <dt className="label text-mid">{label}</dt>
               <dd className="tabular mt-2 text-base font-normal text-ink">{value}</dd>
             </div>
           ))}

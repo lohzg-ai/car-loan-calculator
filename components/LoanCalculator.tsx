@@ -7,6 +7,7 @@ import { FOOTNOTE, type SummaryInputs } from "@/lib/summary";
 import { parseAmount, validateAmount, validateRate } from "@/lib/validation";
 import { formatSGD } from "@/lib/format";
 import { DecimalField } from "./DecimalField";
+import { MonthlyBar } from "./MonthlyBar";
 import { ResultsFigures } from "./ResultsFigures";
 import { ShareActions } from "./ShareActions";
 import { SnapshotCard } from "./SnapshotCard";
@@ -15,7 +16,6 @@ import { Toast, type ToastMessage } from "./Toast";
 
 const DEFAULT_RATE = "2.68";
 const DEFAULT_TENURE = 5;
-const DEBOUNCE_MS = 200;
 
 interface FormState {
   amount: string;
@@ -40,11 +40,11 @@ function compute(form: FormState) {
 
 export default function LoanCalculator() {
   const [form, setForm] = useState<FormState>({ amount: "", rate: DEFAULT_RATE, tenure: DEFAULT_TENURE });
-  const [settled, setSettled] = useState<FormState>(form); // debounced copy used for results
   const [touched, setTouched] = useState({ amount: false, rate: false });
   const [restored, setRestored] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const snapshotRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLParagraphElement>(null);
 
   // Restore last inputs from this browser session (sessionStorage only).
   useEffect(() => {
@@ -52,7 +52,6 @@ export default function LoanCalculator() {
     if (saved) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time sync from browser storage after hydration
       setForm(saved);
-      setSettled(saved); // skip the debounce so restored results appear immediately
       setTouched({ amount: saved.amount !== "", rate: true });
     }
     setRestored(true);
@@ -63,14 +62,7 @@ export default function LoanCalculator() {
     if (restored) saveInputs(form);
   }, [restored, form]);
 
-  // Debounce recalculation.
-  useEffect(() => {
-    if (form === settled) return;
-    const t = setTimeout(() => setSettled(form), DEBOUNCE_MS);
-    return () => clearTimeout(t);
-  }, [form, settled]);
-
-  const computed = useMemo(() => compute(settled), [settled]);
+  const computed = useMemo(() => compute(form), [form]);
   const showToast = useCallback((text: string) => setToast({ id: Date.now(), text }), []);
   const clearToast = useCallback(() => setToast(null), []);
 
@@ -93,7 +85,7 @@ export default function LoanCalculator() {
           <div className="mt-8 space-y-6">
             <DecimalField
               id="amount"
-              label="Loan amount (S$)"
+              label="Loan amount"
               prefix="S$"
               placeholder="100,000"
               group
@@ -107,7 +99,7 @@ export default function LoanCalculator() {
             />
             <DecimalField
               id="rate"
-              label="Interest rate (% p.a.)"
+              label="Interest rate"
               suffix="% p.a."
               maxIntDigits={3}
               value={form.rate}
@@ -128,16 +120,21 @@ export default function LoanCalculator() {
             <h2 id="results-heading" className="eyebrow border-b border-ink pb-4 text-ink">
               Your estimate
             </h2>
-            <div className="mt-8">
-              <ResultsFigures result={computed?.result ?? null} />
+            {/* Faded until there is something to show, so the empty state reads as "waiting for input". */}
+            <div className={`mt-8 transition-opacity duration-200 ${computed ? "" : "opacity-40"}`}>
+              <ResultsFigures result={computed?.result ?? null} heroRef={heroRef} />
             </div>
             <p className="mt-6 text-sm text-mid">
-              {computed ? FOOTNOTE : "Enter a loan amount to see your estimate."}
+              {computed
+                ? FOOTNOTE
+                : form.amount === ""
+                  ? "Enter a loan amount to see your estimate."
+                  : "Fix the highlighted field to see your estimate."}
             </p>
             {/* Concise announcement for screen readers whenever results settle. */}
             <p className="sr-only" aria-live="polite" aria-atomic="true">
               {computed
-                ? `Loan payable per month ${formatSGD(computed.result.perMonth)}. Total loan amount ${formatSGD(computed.result.totalPayable)}.`
+                ? `Monthly instalment ${formatSGD(computed.result.perMonth)}. Total repayment ${formatSGD(computed.result.totalPayable)}.`
                 : ""}
             </p>
           </div>
@@ -153,6 +150,7 @@ export default function LoanCalculator() {
         </section>
       </div>
 
+      <MonthlyBar perMonth={computed?.result.perMonth ?? null} target={heroRef} />
       <SnapshotCard ref={snapshotRef} inputs={computed?.inputs ?? null} result={computed?.result ?? null} />
       <Toast message={toast} onDone={clearToast} />
     </>

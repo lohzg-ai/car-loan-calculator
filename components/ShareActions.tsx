@@ -25,14 +25,13 @@ interface ShareActionsProps {
 
 const SHARE_TITLE = "Car loan estimate";
 
-const base =
-  "focus-ring eyebrow inline-flex min-h-12 flex-1 items-center justify-center px-5 transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40";
-const primary = `${base} bg-ink text-white hover:bg-charcoal/85`;
-const secondary = `${base} border border-ink text-ink hover:bg-ink hover:text-white`;
-
-function isTouchDevice(): boolean {
-  return window.matchMedia("(pointer: coarse)").matches;
-}
+// Outlined so the monthly figure, not the buttons, carries the most visual weight.
+const look =
+  "focus-ring eyebrow min-h-12 flex-1 items-center justify-center border border-ink px-5 text-ink transition-colors duration-150 hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-40";
+const button = `${look} inline-flex`;
+// Share is shown by CSS on touch devices only (desktop has Copy), so it is in the
+// server markup from the start and never makes the row jump after hydration.
+const shareButton = `${look} hidden pointer-coarse:inline-flex`;
 
 export function ShareActions({ snapshotRef, inputs, result, onToast }: ShareActionsProps) {
   const [busy, setBusy] = useState<Action | null>(null);
@@ -109,7 +108,7 @@ export function ShareActions({ snapshotRef, inputs, result, onToast }: ShareActi
     const p = prepare();
     if (!p) return;
 
-    if (typeof navigator.share !== "function" || !isTouchDevice()) {
+    if (typeof navigator.share !== "function") {
       await copyTextWithToast(p.text, "Summary copied");
       return;
     }
@@ -149,13 +148,13 @@ export function ShareActions({ snapshotRef, inputs, result, onToast }: ShareActi
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row" aria-busy={busy !== null}>
-      <button type="button" className={primary} disabled={disabled} onClick={handleSave}>
+      <button type="button" className={button} disabled={disabled} onClick={handleSave}>
         {busy === "save" ? "Saving…" : "Save as image"}
       </button>
-      <button type="button" className={secondary} disabled={disabled} onClick={handleCopy}>
+      <button type="button" className={button} disabled={disabled} onClick={handleCopy}>
         {busy === "copy" ? "Copying…" : "Copy"}
       </button>
-      <button type="button" className={secondary} disabled={disabled} onClick={handleShare}>
+      <button type="button" className={shareButton} disabled={disabled} onClick={handleShare}>
         {busy === "share" ? "Preparing…" : "Share"}
       </button>
     </div>

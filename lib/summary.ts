@@ -7,14 +7,15 @@ export interface SummaryInputs {
   tenureYears: number;
 }
 
-export const FOOTNOTE = "Calculated on a flat-rate basis. Figures are estimates only.";
+export const FOOTNOTE = "Flat-rate estimate for illustration only. Actual terms are set by your lender.";
 
 export function formatRate(rate: number): string {
   return `${rate.toFixed(2)}% p.a.`;
 }
 
+/** 5 → "5 years (60 months)" */
 export function formatTenure(years: number): string {
-  return `${years} ${years === 1 ? "year" : "years"}`;
+  return `${years} ${years === 1 ? "year" : "years"} (${years * 12} months)`;
 }
 
 export function textSummary(inputs: SummaryInputs, result: LoanResult, dateLabel: string): string {
@@ -25,10 +26,10 @@ export function textSummary(inputs: SummaryInputs, result: LoanResult, dateLabel
     `Interest rate: ${formatRate(inputs.ratePercent)}`,
     `Loan tenure: ${formatTenure(inputs.tenureYears)}`,
     "",
-    `Loan payable per month: ${formatSGD(result.perMonth)}`,
-    `Loan payable per year: ${formatSGD(result.perYear)}`,
-    `Total loan interest: ${formatSGD(result.totalInterest)}`,
-    `Total loan amount: ${formatSGD(result.totalPayable)}`,
+    `Monthly instalment: ${formatSGD(result.perMonth)}`,
+    `Total interest: ${formatSGD(result.totalInterest)}`,
+    `Total repayment: ${formatSGD(result.totalPayable)}`,
+    `Yearly repayment: ${formatSGD(result.perYear)}`,
     "",
     FOOTNOTE,
   ].join("\n");

@@ -24,7 +24,7 @@ export function Toast({ message, onDone }: { message: ToastMessage | null; onDon
       {message && (
         <p
           key={message.id}
-          className="eyebrow bg-ink px-6 py-4 text-white motion-safe:animate-[toast-in_180ms_ease-out]"
+          className="eyebrow bg-ink px-6 py-4 text-paper motion-safe:animate-[toast-in_180ms_ease-out]"
         >
           {message.text}
         </p>

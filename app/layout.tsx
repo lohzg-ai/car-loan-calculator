@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Jost } from "next/font/google";
+import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const jost = Jost({
@@ -35,13 +36,20 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
-  colorScheme: "light",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-SG" className={`${jost.variable} antialiased`}>
+    // suppressHydrationWarning: THEME_SCRIPT sets data-theme on <html> before React hydrates.
+    <html lang="en-SG" className={`${jost.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-dvh flex-col font-sans">{children}</body>
     </html>
   );
